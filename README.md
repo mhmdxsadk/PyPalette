@@ -27,15 +27,11 @@ PyPalette is a simple Python-based color palette generator that displays random 
    git clone https://github.com/moealkurdi/pypalette.git
    cd pypalette
    ```
-### Installing Requirements Using pip
-
 2. Install dependencies:
    ```sh
    pip install -r requirements.txt
    ```
-### Running the Application
-
-4. Run the application:
+3. Run the application:
    ```sh
    python main.py
    ```
