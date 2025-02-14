@@ -1,10 +1,11 @@
+import sys
 from random import randint as ri
 from threading import Thread
+
+import pygame
 import pyperclip
 import requests
-import pygame
-import sys
-import os
+
 
 def getRandomColor():
     while True:
@@ -17,11 +18,14 @@ def getRandomColor():
 
     return r, g, b
 
+
 def colorToHex(color):
     return "#{:02X}{:02X}{:02X}".format(*color)
 
+
 def darkenColor(color, factor=0.8):
     return tuple(int(c * factor) for c in color)
+
 
 def getColorName(hexCode, callback):
     hexCode = hexCode[1:]
@@ -29,21 +33,25 @@ def getColorName(hexCode, callback):
         url = f"https://www.thecolorapi.com/id?hex={hexCode}"
         response = requests.get(url, timeout=5)
         data = response.json()
-        colorName = data.get('name', {}).get("value", "Unknown Color")
-        colorRgb = data.get('rgb', {}).get("value", "Unknown RGB")
+        colorName = data.get("name", {}).get("value", "Unknown Color")
+        colorRgb = data.get("rgb", {}).get("value", "Unknown RGB")
         callback(colorName, colorRgb)
     except requests.exceptions.RequestException:
         colorName = "Unknown Color"
 
+
 def renderStylizedText(font, text, color, pos, shadowColor=(0, 0, 0)):
     textSurface = font.render(text, True, color)
-    shadowSurface = pygame.Surface((textSurface.get_width(), textSurface.get_height()), pygame.SRCALPHA)
+    shadowSurface = pygame.Surface(
+        (textSurface.get_width(), textSurface.get_height()), pygame.SRCALPHA
+    )
 
     if shadowColor:
         shadowSurface.blit(font.render(text, True, shadowColor), (1, 1))
 
     shadowSurface.blit(textSurface, (0, 0))
     screen.blit(shadowSurface, pos)
+
 
 def getColorNameThreaded(hexCode, colIndex):
     def target(colorName, colorRgb):
@@ -52,14 +60,17 @@ def getColorNameThreaded(hexCode, colIndex):
     thread = Thread(target=getColorName, args=(hexCode, target))
     thread.start()
 
+
 pygame.init()
 
 width, height = 1280, 720
-screen = pygame.display.set_mode((width, height), pygame.DOUBLEBUF, pygame.SCALED, vsync=True)
+screen = pygame.display.set_mode(
+    (width, height), pygame.DOUBLEBUF, pygame.SCALED, vsync=True
+)
 pygame.display.set_caption("PyPalette")
 
 columns = 8
-columnWidth = (width / columns) 
+columnWidth = width / columns
 
 colors = [getRandomColor() for _ in range(columns)]
 colorNames = ["" for _ in range(columns)]
@@ -72,7 +83,7 @@ clock = pygame.time.Clock()
 fps = 24
 
 fontSize = 16
-font = pygame.font.Font('./assets/fonts/montserrat.ttf', fontSize)
+font = pygame.font.Font("./assets/fonts/montserrat.ttf", fontSize)
 
 running = True
 while running:
@@ -101,9 +112,11 @@ while running:
                     getColorNameThreaded(colorHex, col)
 
         elif event.type == pygame.USEREVENT:
-            colorName = event.dict.get('colorName', 'Unknown Color')
-            colorRgb = event.dict.get('colorRgb', 'Unknown RGB')
-            colorNames[event.dict['colIndex']] = f"{colorName} | Hex: {colorHex} | RGB: {colorRgb}"
+            colorName = event.dict.get("colorName", "Unknown Color")
+            colorRgb = event.dict.get("colorRgb", "Unknown RGB")
+            colorNames[event.dict["colIndex"]] = (
+                f"{colorName} | Hex: {colorHex} | RGB: {colorRgb}"
+            )
 
     screen.fill((255, 255, 255))
 
@@ -133,9 +146,24 @@ while running:
 
         textCol = darkenColor(color)
         outlineCol = darkenColor(darkenColor(darkenColor(darkenColor(color))))
-        renderStylizedText(font, f"RGB: {color}", textCol, (col * columnWidth + leftPadding, height - 60))
-        renderStylizedText(font, f"Hex: {colorToHex(color)}", textCol, (col * columnWidth + leftPadding, height - 40))
-        renderStylizedText(font, f"{colorNames[col]}", textCol, (col * columnWidth + leftPadding, height - 20))
+        renderStylizedText(
+            font,
+            f"RGB: {color}",
+            textCol,
+            (col * columnWidth + leftPadding, height - 60),
+        )
+        renderStylizedText(
+            font,
+            f"Hex: {colorToHex(color)}",
+            textCol,
+            (col * columnWidth + leftPadding, height - 40),
+        )
+        renderStylizedText(
+            font,
+            f"{colorNames[col]}",
+            textCol,
+            (col * columnWidth + leftPadding, height - 20),
+        )
 
     pygame.display.flip()
     clock.tick(fps)
