@@ -12,7 +12,6 @@ PyPalette is a simple Python-based color palette generator that displays random 
 - Fetches color names from [The Color API](https://www.thecolorapi.com).
 
 
-
 ## Installation
 
 ### Prerequisites
@@ -50,3 +49,6 @@ PyPalette is a simple Python-based color palette generator that displays random 
 
 ## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+## Status
+🚀 This repository is **archived** and will no longer be maintained. It remains available for reference and use.
